@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JavaScript Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#171722; --panel:#232334; --line:#37374e; --text:#f4f4fa; --muted:#a6a6c0;
+  --js:#f7df1e; --teal:#3fb99a; --blue:#5b8def; --red:#e0383e; --good:#3fb99a; --bad:#e8585d; --on-js:#1a1a1a;
+  --display:"Bebas Neue",Impact,"Arial Narrow",sans-serif;
+  --body:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#eef0f7; --panel:#fff; --line:#d3d6e6; --text:#1b1c2b; --muted:#585b75; --teal:#1b8a6e; --blue:#2c5fc4; --good:#1b8a6e; --bad:#c4343a; --js:#f0d400;}}
+:root[data-theme="light"]{--bg:#eef0f7; --panel:#fff; --line:#d3d6e6; --text:#1b1c2b; --muted:#585b75; --teal:#1b8a6e; --blue:#2c5fc4; --good:#1b8a6e; --bad:#c4343a; --js:#f0d400;}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;
+  background-image:radial-gradient(circle at 0 0,color-mix(in srgb,var(--teal) 30%,transparent),transparent 280px),
+  radial-gradient(circle at 100% 100%,color-mix(in srgb,var(--blue) 30%,transparent),transparent 320px);background-attachment:fixed}
+main{max-width:860px;margin:0 auto;padding:28px 16px 56px}
+h1,h2{font-family:var(--display);font-weight:400;margin:0;letter-spacing:.03em}
+.hidden{display:none!important}.muted{color:var(--muted)}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid transparent;padding:12px 22px;font-weight:600}
+.primary{background:var(--js);color:var(--on-js)}.primary:hover:not(:disabled){filter:brightness(1.07)}
+.primary:disabled{opacity:.4;cursor:not-allowed}
+.ghost{background:transparent;color:var(--text);border-color:var(--line)}.ghost:hover{border-color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.hero{display:flex;align-items:center;gap:20px;margin-bottom:26px}
+.logo{flex:none;width:84px;height:84px;background:var(--js);color:var(--on-js);border-radius:12px;font-family:var(--mono);font-size:2.2rem;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px 10px;box-shadow:0 10px 30px color-mix(in srgb,var(--js) 25%,transparent)}
+.tag{display:inline-block;border:1px solid var(--red);padding:2px 14px;font-family:var(--display);letter-spacing:.06em;margin-bottom:6px}
+h1{font-size:clamp(2.8rem,10vw,4.6rem);line-height:.95}
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.topic{text-align:left;background:var(--panel);color:var(--text);border:1px solid var(--line);border-top:4px solid var(--c);padding:18px;display:flex;flex-direction:column;gap:6px;transition:transform .15s,border-color .15s}
+.topic:hover{transform:translateY(-3px);border-color:var(--c)}
+.glyph{font-family:var(--mono);font-size:1.7rem;color:var(--c)}
+.topic b{font-size:1.1rem}.topic span{font-size:.85rem;color:var(--muted);font-weight:400}
+.topic .best{color:var(--c);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;max-width:720px;margin:0 auto}
+.top{display:flex;justify-content:space-between;gap:12px;font-size:.9rem;color:var(--muted);margin-bottom:8px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.bar>div{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .3s}
+.kind{color:var(--blue);font-size:.85rem;font-weight:600;margin:0 0 4px}
+h2{font-size:clamp(1.45rem,5vw,2rem);line-height:1.2;letter-spacing:.02em}
+.hint{color:var(--muted);font-size:.85rem;margin:6px 0 0}
+.opts{display:grid;gap:10px;margin:16px 0;border:0;padding:0}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-family:var(--mono);font-size:.92rem}
+.opt:hover{border-color:var(--blue)}.opt input{accent-color:var(--teal);width:18px;height:18px;flex:none}
+.opt.picked{border-color:var(--blue)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.locked .opt{cursor:default}
+.blank{width:100%;margin:16px 0;padding:12px 14px;font:inherit;font-family:var(--mono);color:var(--text);background:transparent;border:1px solid var(--line);border-radius:10px}
+.blank.right{border-color:var(--good)}.blank.wrong{border-color:var(--bad)}
+.feedback{border-left:4px solid var(--line);padding:8px 14px;margin:8px 0 16px}
+.feedback.right{border-color:var(--good)}.feedback.wrong{border-color:var(--bad)}.feedback strong{display:block}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.score{font-family:var(--display);font-size:clamp(4.5rem,20vw,7.5rem);line-height:1;margin:6px 0;color:var(--js)}
+.review{list-style:none;padding:0;margin:18px 0;display:grid;gap:8px}
+.review li{border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.92rem}
+.review li.right{border-left:4px solid var(--good)}.review li.wrong{border-left:4px solid var(--bad)}
+.review small{display:block;color:var(--muted)}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:18px 0}
+.lvl{text-align:left;background:transparent;color:var(--text);border:1px solid var(--line);border-top:4px solid var(--c);padding:18px;display:flex;flex-direction:column;gap:4px;transition:transform .15s}
+.lvl:hover{transform:translateY(-3px);border-color:var(--c)}
+.lvl b{font-family:var(--display);font-weight:400;font-size:2rem;letter-spacing:.04em;color:var(--c);line-height:1}
+.lvl span{font-size:.9rem;color:var(--muted);font-weight:400}.lvl em{font-style:normal;font-size:.85rem;font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){.bar>div,.topic{transition:none}}
+@media (max-width:480px){.logo{width:64px;height:64px;font-size:1.7rem}}
+</style>
+</head>
+<body>
+<main>
+  <!-- Topic picker -->
+  <section id="home">
+    <div class="hero">
+      <div class="logo" aria-hidden="true">JS</div>
+      <div>
+        <span class="tag">TASK 03</span>
+        <h1>JavaScript Quiz</h1>
+        <p class="muted" style="margin:6px 0 0">Pick a topic and test yourself. Single choice, multiple choice and fill in the blank.</p>
+      </div>
+    </div>
+    <div class="topics" id="topics"></div>
+  </section>
+
+  <!-- Level picker -->
+  <section id="levels" class="card hidden">
+    <p class="kind" id="levelTopic"></p>
+    <h2>Choose your level</h2>
+    <div class="levels">
+      <button class="lvl" data-level="easy" style="--c:#3fb99a"><b>Easy</b><span>Core basics and common syntax</span><em id="bestEasy"></em></button>
+      <button class="lvl" data-level="hard" style="--c:#e8585d"><b>Hard</b><span>Tricky behaviour and deeper concepts</span><em id="bestHard"></em></button>
+    </div>
+    <div class="actions"><button class="ghost" id="backBtn">Back to topics</button></div>
+  </section>
+
+  <!-- Question -->
+  <section id="game" class="card hidden" aria-live="polite">
+    <div class="top"><span id="topicName"></span><span id="progressText"></span><span id="scoreText"></span></div>
+    <div class="bar" role="progressbar" aria-label="Quiz progress"><div id="barFill"></div></div>
+    <p class="kind" id="kind"></p>
+    <h2 id="question"></h2>
+    <p class="hint" id="hint"></p>
+    <div id="answerArea"></div>
+    <div id="feedback" class="feedback hidden"></div>
+    <div class="actions">
+      <button class="primary" id="submitBtn" disabled>Check answer</button>
+      <button class="primary hidden" id="nextBtn">Next question</button>
+      <button class="ghost" id="quitBtn">Change topic</button>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section id="result" class="card hidden">
+    <p class="kind" id="resultTopic"></p>
+    <h2>Quiz complete</h2>
+    <div class="score" id="finalScore"></div>
+    <p id="message"></p>
+    <ul class="review" id="review"></ul>
+    <div class="actions">
+      <button class="primary" id="againBtn">Play again</button>
+      <button class="ghost" id="homeBtn">Choose another topic</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // single: answer = index | multi: answer = [indexes] | fill: answer = [accepted strings]
+  var TOPICS = [
+    { id: "vars", name: "Variables & Data Types", glyph: "let", color: "#f7df1e", questions: [
+      { type: "single", q: "Which keyword declares a block-scoped variable that can be reassigned?",
+        options: ["var", "let", "const", "def"], answer: 1, why: "let is block-scoped and can be reassigned. const cannot be reassigned." },
+      { type: "single", q: "What does typeof null return?",
+        options: ["\"null\"", "\"undefined\"", "\"object\"", "\"number\""], answer: 2, why: "A long-standing quirk of JavaScript: typeof null is \"object\"." },
+      { type: "multi", q: "Which of these are JavaScript primitive types?",
+        options: ["String", "Array", "Boolean", "BigInt"], answer: [0, 2, 3], why: "Array is an object, not a primitive." },
+      { type: "single", q: "What is the result of 0.1 + 0.2 === 0.3 ?",
+        options: ["true", "false", "undefined", "TypeError"], answer: 1, why: "Floating-point rounding makes 0.1 + 0.2 equal 0.30000000000000004." },
+      { type: "fill", q: "The ______ operator (three equal signs) compares both value and type.",
+        answer: ["===", "strict equality"], why: "=== is strict equality: no type conversion happens." },
+      { level: "hard", type: "single", q: "What does typeof NaN return?",
+        options: ["\"NaN\"", "\"number\"", "\"undefined\"", "\"object\""], answer: 1, why: "NaN means Not-a-Number, but its type is still \"number\"." },
+      { level: "hard", type: "single", q: "What does console.log(a); var a = 5; print?",
+        options: ["5", "ReferenceError", "undefined", "null"], answer: 2, why: "var declarations are hoisted and start as undefined." },
+      { level: "hard", type: "multi", q: "Which values are falsy?",
+        options: ["0", "\"\" (empty string)", "\"0\"", "null"], answer: [0, 1, 3], why: "The string \"0\" is not empty, so it is truthy." },
+      { level: "hard", type: "single", q: "What is the result of [] + [] ?",
+        options: ["[]", "0", "\"\" (empty string)", "NaN"], answer: 2, why: "Both arrays convert to empty strings, and \"\" + \"\" is \"\"." },
+      { level: "hard", type: "fill", q: "Reading a let variable before its declaration throws an error because it is in the temporal ______ zone.",
+        answer: ["dead"], why: "The temporal dead zone lasts from the start of the scope until the declaration runs." }
+    ]},
+    { id: "funcs", name: "Functions", glyph: "=>", color: "#3fb99a", questions: [
+      { type: "single", q: "Which is a valid arrow function that adds two numbers?",
+        options: ["(a, b) -> a + b", "(a, b) => a + b", "=> (a, b) a + b", "function => (a, b)"], answer: 1, why: "Arrow functions use =>." },
+      { type: "single", q: "What does a function return when it has no return statement?",
+        options: ["null", "0", "undefined", "false"], answer: 2, why: "Functions return undefined by default." },
+      { type: "multi", q: "Which are ways to define a function in JavaScript?",
+        options: ["Function declaration", "Arrow function", "Function expression", "func statement"], answer: [0, 1, 2], why: "There is no func keyword in JavaScript." },
+      { type: "single", q: "What is a closure?",
+        options: ["A function that remembers variables from its outer scope", "A function that has no parameters", "A function that runs only once", "A way to close the browser tab"], answer: 0, why: "A closure keeps access to its outer scope even after that scope has finished." },
+      { type: "fill", q: "The array method ______() runs a function on every item and returns a new array.",
+        answer: ["map", "map()"], why: "map() transforms each item into a new array of the same length." },
+      { level: "hard", type: "single", q: "Inside an arrow function, what does this refer to?",
+        options: ["The function itself", "The this of the surrounding scope", "Always window", "Always undefined"], answer: 1, why: "Arrow functions do not have their own this. They use the one from where they were written." },
+      { level: "hard", type: "single", q: "What does for (var i = 0; i < 3; i++) setTimeout(() => console.log(i)); print?",
+        options: ["0 1 2", "3 3 3", "0 0 0", "1 2 3"], answer: 1, why: "var is function-scoped, so all callbacks share one i, which is 3 when they run. Using let gives 0 1 2." },
+      { level: "hard", type: "multi", q: "Which statements about higher-order functions are true?",
+        options: ["They can take a function as an argument", "They can return a function", "They must be arrow functions", "Array reduce() is one"], answer: [0, 1, 3], why: "Any function style can be higher-order." },
+      { level: "hard", type: "single", q: "Which method returns a NEW function with this permanently bound?",
+        options: ["call()", "apply()", "bind()", "invoke()"], answer: 2, why: "call() and apply() run the function immediately. bind() returns a new function." },
+      { level: "hard", type: "fill", q: "A function that calls itself is called a ______ function.",
+        answer: ["recursive"], why: "Recursive functions need a base case to stop." }
+    ]},
+    { id: "arrays", name: "Arrays & Objects", glyph: "[ ]", color: "#5b8def", questions: [
+      { type: "single", q: "Which method adds an item to the end of an array?",
+        options: ["push()", "pop()", "shift()", "unshift()"], answer: 0, why: "push() adds to the end. unshift() adds to the start." },
+      { type: "single", q: "Which is NOT a valid way to read the property name of obj?",
+        options: ["obj.name", "obj[\"name\"]", "obj->name", "const { name } = obj"], answer: 2, why: "JavaScript has no -> operator." },
+      { type: "multi", q: "Which array methods return a new array?",
+        options: ["map()", "filter()", "push()", "slice()"], answer: [0, 1, 3], why: "push() changes the original array and returns its new length." },
+      { type: "single", q: "What does [...a, ...b] do?",
+        options: ["Merges a and b into a new array", "Deletes a and b", "Compares a and b", "Throws a syntax error"], answer: 0, why: "The spread operator copies items into a new array." },
+      { type: "fill", q: "______.keys(obj) returns an array of an object's property names.",
+        answer: ["object"], why: "Object.keys() lists an object's own property names." },
+      { level: "hard", type: "single", q: "What does [1, 2, 3].reduce((a, b) => a + b, 10) return?",
+        options: ["6", "10", "16", "NaN"], answer: 2, why: "The accumulator starts at 10, so the result is 10 + 1 + 2 + 3 = 16." },
+      { level: "hard", type: "single", q: "After const a = [1, 2, 3]; const b = a; b.push(4); what is a.length?",
+        options: ["3", "4", "undefined", "TypeError"], answer: 1, why: "a and b point to the same array, so the change shows in both." },
+      { level: "hard", type: "multi", q: "Which array methods mutate the original array?",
+        options: ["sort()", "reverse()", "map()", "splice()"], answer: [0, 1, 3], why: "map() returns a new array and leaves the original unchanged." },
+      { level: "hard", type: "single", q: "Which creates a deep copy of an object?",
+        options: ["{ ...obj }", "Object.assign({}, obj)", "structuredClone(obj)", "const copy = obj"], answer: 2, why: "Spread and Object.assign only copy one level. structuredClone copies nested data too." },
+      { level: "hard", type: "fill", q: "______.entries(obj) returns an array of [key, value] pairs.",
+        answer: ["object"], why: "Object.entries() is handy with for...of and destructuring." }
+    ]},
+    { id: "dom", name: "DOM & Events", glyph: "</>", color: "#e0555a", questions: [
+      { type: "single", q: "Which method finds an element by its id?",
+        options: ["document.getElementById()", "document.findId()", "document.byId()", "document.id()"], answer: 0, why: "document.getElementById() returns the element with that id." },
+      { type: "single", q: "Which method attaches an event handler to an element?",
+        options: ["el.attachClick()", "el.addEventListener()", "el.onEvent()", "el.listen()"], answer: 1, why: "addEventListener(type, handler) is the standard way." },
+      { type: "multi", q: "Which of these are valid DOM events?",
+        options: ["click", "keydown", "press", "submit"], answer: [0, 1, 3], why: "There is no press event. Use keydown, keyup or click." },
+      { type: "single", q: "What does event.preventDefault() do?",
+        options: ["Stops the browser's default action", "Deletes the element", "Reloads the page", "Stops all JavaScript"], answer: 0, why: "For example, it stops a form from reloading the page." },
+      { type: "fill", q: "Use document.______(\".card\") to select the first element that matches a CSS selector.",
+        answer: ["querySelector", "querySelector()"], why: "querySelectorAll() returns every match." },
+      { level: "hard", type: "single", q: "What is event delegation?",
+        options: ["Adding one listener to a parent and handling child events with event.target", "Deleting all listeners", "Running events on a server", "Copying events between pages"], answer: 0, why: "It saves memory and works for elements added later." },
+      { level: "hard", type: "single", q: "Inside a handler, event.currentTarget is...",
+        options: ["The element the listener is attached to", "The innermost element clicked", "Always the window", "Always document.body"], answer: 0, why: "event.target is the element that was actually clicked." },
+      { level: "hard", type: "multi", q: "Which are safe ways to insert untrusted text into a page?",
+        options: ["textContent", "document.createTextNode()", "innerHTML", "innerText"], answer: [0, 1, 3], why: "innerHTML parses HTML, which can run malicious code (XSS)." },
+      { level: "hard", type: "single", q: "What does { once: true } do in addEventListener?",
+        options: ["Runs the handler immediately", "Removes the listener after it runs once", "Blocks other listeners", "Makes the event bubble"], answer: 1, why: "The listener removes itself after its first call." },
+      { level: "hard", type: "fill", q: "Calling event.______() stops an event from bubbling up to parent elements.",
+        answer: ["stopPropagation", "stopPropagation()"], why: "preventDefault() is different: it stops the browser's default action." }
+    ]},
+    { id: "async", name: "Async JavaScript", glyph: "...", color: "#b57bee", questions: [
+      { type: "single", q: "Which is NOT a state of a Promise?",
+        options: ["pending", "fulfilled", "rejected", "cancelled"], answer: 3, why: "A Promise is pending, fulfilled or rejected. It cannot be cancelled." },
+      { type: "single", q: "Where can you normally use the await keyword?",
+        options: ["Inside an async function", "Only inside loops", "Only in CSS", "Anywhere in old scripts"], answer: 0, why: "await works inside async functions (and top-level in modules)." },
+      { type: "multi", q: "Which are valid Promise instance methods?",
+        options: [".then()", ".catch()", ".finally()", ".stop()"], answer: [0, 1, 2], why: "There is no .stop() method." },
+      { type: "single", q: "What does fetch() return?",
+        options: ["A Promise", "JSON", "A string", "undefined"], answer: 0, why: "fetch() returns a Promise that resolves to a Response." },
+      { type: "fill", q: "To handle errors in async/await code, wrap it in a ______ / catch block.",
+        answer: ["try"], why: "try { await ... } catch (err) { ... } handles rejected Promises." },
+      { level: "hard", type: "single", q: "What is the output order of: console.log(1); setTimeout(() => console.log(2), 0); Promise.resolve().then(() => console.log(3)); console.log(4);",
+        options: ["1 2 3 4", "1 4 3 2", "1 4 2 3", "4 3 2 1"], answer: 1, why: "Synchronous code runs first (1, 4), then microtasks like .then (3), then timers (2)." },
+      { level: "hard", type: "single", q: "When does Promise.all() reject?",
+        options: ["When all promises reject", "As soon as any one promise rejects", "Never", "Only after a timeout"], answer: 1, why: "Promise.all fails fast on the first rejection." },
+      { level: "hard", type: "single", q: "What does await 5 do?",
+        options: ["Throws a TypeError", "Returns 5 after yielding to the event loop", "Returns a Promise forever", "Returns undefined"], answer: 1, why: "A non-Promise value is wrapped in a resolved Promise, so the code resumes in a microtask." },
+      { level: "hard", type: "multi", q: "Which of these run as microtasks?",
+        options: [".then() callbacks", "queueMicrotask() callbacks", "setTimeout() callbacks", "Code after an await"], answer: [0, 1, 3], why: "setTimeout callbacks are macrotasks and run later." },
+      { level: "hard", type: "fill", q: "Promise.______() waits for every promise to finish and never rejects, reporting each result.",
+        answer: ["allSettled"], why: "allSettled gives { status, value or reason } for every promise." }
+    ]}
+  ];
+  var MIXED = { id: "mixed", name: "Mixed Challenge", glyph: "?!", color: "#ff9f43" };
+
+  var KIND = { single: "Single choice", multi: "Multiple choice", fill: "Fill in the blank" };
+  var HINT = { single: "Choose one answer.", multi: "Choose all answers that apply.", fill: "Type your answer." };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function norm(s) { return String(s).trim().toLowerCase().replace(/\s+/g, " ").replace(/\.+$/, ""); }
+  function sameSet(a, b) { if (a.length !== b.length) return false; var s = a.slice().sort(), t = b.slice().sort(); return s.every(function (v, i) { return v === t[i]; }); }
+  function save(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
+  function read(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+  var topic = null, level = "easy", questions = [], idx = 0, score = 0, locked = false, log = [];
+
+  function ofLevel(list) { return list.filter(function (q) { return (q.level || "easy") === level; }); }
+  function levelName(l) { return l === "hard" ? "Hard" : "Easy"; }
+
+  function showLevels(t) {
+    topic = t;
+    $("levelTopic").textContent = t.name;
+    ["easy", "hard"].forEach(function (l) {
+      var b = read("jsquiz-best-" + t.id + "-" + l);
+      $(l === "easy" ? "bestEasy" : "bestHard").textContent =
+        b !== null ? "Best: " + b + " / " + (t.id === "mixed" ? 10 : 5) : "Not played yet";
+    });
+    show("levels");
+  }
+
+  function show(id) { ["home", "levels", "game", "result"].forEach(function (s) { $(s).classList.toggle("hidden", s !== id); }); window.scrollTo(0, 0); }
+
+  function renderTopics() {
+    var box = $("topics");
+    box.textContent = "";
+    TOPICS.concat([MIXED]).forEach(function (t) {
+      var total = t.id === "mixed" ? 10 : 5;
+      var e = read("jsquiz-best-" + t.id + "-easy"), h = read("jsquiz-best-" + t.id + "-hard");
+      var b = document.createElement("button");
+      b.className = "topic"; b.style.setProperty("--c", t.color);
+      var g = document.createElement("div"); g.className = "glyph"; g.textContent = t.glyph;
+      var n = document.createElement("b"); n.textContent = t.name;
+      var d = document.createElement("span");
+      d.textContent = t.id === "mixed" ? "10 random questions from every topic" : "Easy and hard levels";
+      b.appendChild(g); b.appendChild(n); b.appendChild(d);
+      if (e !== null || h !== null) { var s = document.createElement("span"); s.className = "best"; s.textContent = "Best: Easy " + (e === null ? "-" : e) + " | Hard " + (h === null ? "-" : h) + " (out of " + total + ")"; b.appendChild(s); }
+      b.addEventListener("click", function () { showLevels(t); });
+      box.appendChild(b);
+    });
+  }
+
+  function prepare(item) {
+    if (item.type === "fill") return item;
+    var order = shuffle(item.options.map(function (_, i) { return i; }));
+    var map = function (i) { return order.indexOf(i); };
+    return { type: item.type, q: item.q, why: item.why,
+      options: order.map(function (i) { return item.options[i]; }),
+      answer: item.type === "single" ? map(item.answer) : item.answer.map(map) };
+  }
+
+  function start(t, lvl) {
+    topic = t; level = lvl;
+    var pool = t.id === "mixed"
+      ? shuffle(ofLevel(TOPICS.reduce(function (all, x) { return all.concat(x.questions); }, []))).slice(0, 10)
+      : shuffle(ofLevel(t.questions));
+    questions = pool.map(prepare);
+    idx = 0; score = 0; log = [];
+    $("topicName").textContent = t.name + " | " + levelName(lvl);
+    show("game");
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    var item = questions[idx]; locked = false;
+    $("progressText").textContent = "Question " + (idx + 1) + " of " + questions.length;
+    $("scoreText").textContent = "Score: " + score;
+    $("barFill").style.width = (idx / questions.length * 100) + "%";
+    $("kind").textContent = KIND[item.type];
+    $("question").textContent = item.q;
+    $("hint").textContent = HINT[item.type];
+    $("feedback").className = "feedback hidden";
+    $("submitBtn").classList.remove("hidden"); $("submitBtn").disabled = true;
+    $("nextBtn").classList.add("hidden");
+    $("nextBtn").textContent = idx === questions.length - 1 ? "See results" : "Next question";
+    var area = $("answerArea"); area.textContent = ""; area.className = "";
+
+    if (item.type === "fill") {
+      var input = document.createElement("input");
+      input.type = "text"; input.id = "blank"; input.className = "blank"; input.autocomplete = "off";
+      input.setAttribute("aria-label", "Your answer");
+      input.addEventListener("input", function () { $("submitBtn").disabled = !input.value.trim(); });
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter" && !$("submitBtn").disabled && !locked) check(); });
+      area.appendChild(input); input.focus();
+    } else {
+      var set = document.createElement("fieldset"); set.className = "opts";
+      var lg = document.createElement("legend"); lg.className = "sr"; lg.textContent = item.q; set.appendChild(lg);
+      item.options.forEach(function (text, i) {
+        var label = document.createElement("label"); label.className = "opt";
+        var inp = document.createElement("input");
+        inp.type = item.type === "single" ? "radio" : "checkbox"; inp.name = "opt"; inp.value = i;
+        inp.addEventListener("change", function () {
+          $("submitBtn").disabled = !set.querySelector("input:checked");
+          set.querySelectorAll(".opt").forEach(function (l) { l.classList.toggle("picked", l.querySelector("input").checked); });
+        });
+        var sp = document.createElement("span"); sp.textContent = text;
+        label.appendChild(inp); label.appendChild(sp); set.appendChild(label);
+      });
+      area.appendChild(set);
+    }
+  }
+
+  function check() {
+    if (locked) return;
+    var item = questions[idx], ok = false, given = "", correct = "";
+    if (item.type === "fill") {
+      var inp = $("blank"); given = inp.value.trim();
+      ok = item.answer.some(function (a) { return norm(a) === norm(given); });
+      correct = item.answer[0]; inp.disabled = true; inp.classList.add(ok ? "right" : "wrong");
+    } else {
+      var boxes = Array.prototype.slice.call($("answerArea").querySelectorAll("input"));
+      var picked = boxes.filter(function (b) { return b.checked; }).map(function (b) { return Number(b.value); });
+      var right = item.type === "single" ? [item.answer] : item.answer;
+      ok = sameSet(picked, right);
+      given = picked.map(function (i) { return item.options[i]; }).join(", ");
+      correct = right.map(function (i) { return item.options[i]; }).join(", ");
+      boxes.forEach(function (b) {
+        var l = b.parentNode; b.disabled = true; l.classList.remove("picked");
+        if (right.indexOf(Number(b.value)) !== -1) l.classList.add("right"); else if (b.checked) l.classList.add("wrong");
+      });
+      $("answerArea").classList.add("locked");
+    }
+    locked = true; if (ok) score++;
+    log.push({ q: item.q, ok: ok, given: given, correct: correct });
+    var fb = $("feedback"); fb.className = "feedback " + (ok ? "right" : "wrong"); fb.textContent = "";
+    var st = document.createElement("strong"); st.textContent = ok ? "Correct" : "Not quite. Correct answer: " + correct;
+    var why = document.createElement("span"); why.textContent = item.why;
+    fb.appendChild(st); fb.appendChild(why);
+    $("scoreText").textContent = "Score: " + score;
+    $("submitBtn").classList.add("hidden"); $("nextBtn").classList.remove("hidden"); $("nextBtn").focus();
+  }
+
+  function next() { idx++; if (idx < questions.length) renderQuestion(); else finish(); }
+
+  function finish() {
+    var total = questions.length, pct = Math.round(score / total * 100);
+    show("result");
+    $("resultTopic").textContent = topic.name + " | " + levelName(level);
+    $("finalScore").textContent = score + " / " + total;
+    $("message").textContent = pct === 100 ? "Perfect score. You really know your JavaScript."
+      : pct >= 70 ? "Great job. Your JavaScript basics are solid."
+      : pct >= 40 ? "Good effort. Review the answers below and try again."
+      : "Keep practicing. Review the answers below and play again.";
+    var key = "jsquiz-best-" + topic.id + "-" + level, best = read(key);
+    if (best === null || score > Number(best)) save(key, score);
+    var list = $("review"); list.textContent = "";
+    log.forEach(function (r, i) {
+      var li = document.createElement("li"); li.className = r.ok ? "right" : "wrong";
+      var t = document.createElement("div"); t.textContent = (i + 1) + ". " + r.q;
+      var s = document.createElement("small");
+      s.textContent = r.ok ? "Your answer: " + r.given : "Your answer: " + r.given + " | Correct: " + r.correct;
+      li.appendChild(t); li.appendChild(s); list.appendChild(li);
+    });
+    $("againBtn").focus();
+  }
+
+  function home() { renderTopics(); show("home"); }
+
+  $("submitBtn").addEventListener("click", check);
+  $("nextBtn").addEventListener("click", next);
+  $("quitBtn").addEventListener("click", home);
+  $("homeBtn").addEventListener("click", home);
+  $("backBtn").addEventListener("click", home);
+  document.querySelectorAll(".lvl").forEach(function (b) {
+    b.addEventListener("click", function () { start(topic, b.getAttribute("data-level")); });
+  });
+  $("againBtn").addEventListener("click", function () { start(topic, level); });
+  renderTopics();
+})();
+</script>
+</body>
+</html>
